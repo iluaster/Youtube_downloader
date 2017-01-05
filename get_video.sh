@@ -38,7 +38,7 @@ function select_option ()
     echo "${line}.$i"
   done
 
-  echo "Which one ?"
+  echo -e "\nWhich one ?"
   read n
 
   if [ "$n" -le "$line" ];
