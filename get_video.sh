@@ -34,7 +34,8 @@ function select_option ()
 {
   for i in `cat video_type_option.txt`
   do
-    line=line+1
+#    line=line+1
+    ((line++))
     echo "${line}.$i"
   done
 
@@ -53,14 +54,13 @@ function select_option ()
 #echo "$1" > youtube_tmp.txt
 
 #Process substitution
-id_name=`perl -ne 'print "$1\n" if /v=(.*)/' <(echo $1)`
+  id_name=`perl -ne 'print "$1\n" if /v=(.*)/' <(echo $1)`
 
   name="http://www.youtube.com/get_video_info?video_id=${id_name}"
 
   wget "$name" -O "${id_name}_url.txt"
 
 #cut and filter mp4 url
-
   cp "${id_name}_url.txt" tmp2.txt
   sed -e 's/&/\n/g' tmp2.txt| grep 'url_encoded_fmt_stream_map'> tmp3.txt
   sed -i -e 's/%2C/,/g' tmp3.txt 
@@ -85,6 +85,7 @@ id_name=`perl -ne 'print "$1\n" if /v=(.*)/' <(echo $1)`
   grep 'sig%3D' tmp4.txt >> tmp5.txt
   perl -pe 's/\n//g' tmp5.txt | sed -e 's/sig%3D/\&signature%3D/g' > tmp6.txt
   sed -i -e 's/url%3D//g' tmp6.txt
+  
 #url decoding
   cat tmp6.txt | sed -e 's/%25/%/g' -e 's/%25/%/g' -e 's/%3A/:/g' -e 's/%2F/\//g' -e 's/%3F/\?/g' -e 's/%3D/=/g' -e 's/%26/\&/g' > tmp7.txt
 
