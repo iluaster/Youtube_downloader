@@ -7,7 +7,7 @@
 #
 #
 #
-# Rev 1.0
+# Rev 1.1
 # 2013/09/03
 # Copyright 2013 Jacky Shih <iluaster@gmail.com>
 #
@@ -50,8 +50,10 @@ function select_option ()
   fi
 }
 
-echo "$1" > youtube_tmp.txt
-id_name=`perl -ne 'print "$1\n" if /v=(.*)/' youtube_tmp.txt`
+#echo "$1" > youtube_tmp.txt
+
+#Process substitution
+id_name=`perl -ne 'print "$1\n" if /v=(.*)/' <(echo $1)`
 
   name="http://www.youtube.com/get_video_info?video_id=${id_name}"
 
