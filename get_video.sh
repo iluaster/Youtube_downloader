@@ -3,11 +3,11 @@
 #
 # Youtube Video Downloader bash shell version
 #
-# usage: ./get_video.sh https://www.youtube.com/watch?v=xxxxxxxxxx
+# usage: ./get_video.sh 'https://www.youtube.com/watch?v=xxxxxxxxxx'
 #
 #
 #
-# Rev 1.1
+# Rev 1.2
 # 2013/09/03
 # Copyright 2013 Jacky Shih <iluaster@gmail.com>
 #
@@ -34,7 +34,6 @@ function select_option ()
 {
   for i in `cat video_type_option.txt`
   do
-#    line=line+1
     ((line++))
     echo "${line}.$i"
   done
@@ -56,7 +55,7 @@ function select_option ()
 #Process substitution
   id_name=`perl -ne 'print "$1\n" if /v=(.*)/' <(echo $1)`
 
-  name="http://www.youtube.com/get_video_info?video_id=${id_name}"
+  name="https://www.youtube.com/get_video_info?video_id=${id_name}"
 
   wget "$name" -O "${id_name}_url.txt"
 
