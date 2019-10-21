@@ -7,7 +7,7 @@
 #
 #
 #
-# Rev 1.2
+# Rev 1.3
 # 2013/09/03
 # Copyright 2013 Jacky Shih <iluaster@gmail.com>
 #
@@ -60,7 +60,7 @@ function select_option ()
   wget "$name" -O "${id_name}_url.txt"
 
 #cut and filter mp4 url
-  cp "${id_name}_url.txt" tmp2.txt
+  cp -- "${id_name}_url.txt" tmp2.txt
   sed -e 's/&/\n/g' tmp2.txt| grep 'url_encoded_fmt_stream_map'> tmp3.txt
   sed -i -e 's/%2C/,/g' tmp3.txt 
   sed -i -e 's/,/\n/g' tmp3.txt
