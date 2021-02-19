@@ -7,7 +7,7 @@
 #
 #
 #
-# Rev 1.3
+# Rev 1.4
 # 2013/09/03
 # Copyright 2013 Jacky Shih <iluaster@gmail.com>
 #
@@ -27,68 +27,71 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+#!/bin/bash
 
 declare -i line=0
 
-function select_option ()
+function video_select ()
 {
-  for i in `cat video_type_option.txt`
-  do
-    ((line++))
-    echo "${line}.$i"
-  done
+	for i in `cat video_type_option.txt`
+	do
+		#    line=line+1
+		((line++))
+		echo "${line}.$i"
+	done
 
-  echo -e "\nWhich one ?"
-  read n
+	echo -e "\nWhich one ?"
+	read n
 
-  if [ "$n" -le "$line" ];
-  then
-   head -n "$n" tmp3.txt | tail -n 1 > tmp4.txt
-  else
-   echo "Input Error!!"
-   exit
-  fi
+	if [ "$n" -le "$line" ];
+	then
+		head -n "$n" yt_tmp4.txt | tail -n 1 > yt_tmp5.txt
+	else
+		echo "Input Error!!"
+		exit
+	fi
 }
 
-#echo "$1" > youtube_tmp.txt
+#process substitution
+id_name=`perl -ne 'print "$1\n" if /v=(.*)/' <(echo $1)`
 
-#Process substitution
-  id_name=`perl -ne 'print "$1\n" if /v=(.*)/' <(echo $1)`
+name="https://www.youtube.com/get_video_info?video_id=${id_name}"
 
-  name="https://www.youtube.com/get_video_info?video_id=${id_name}"
-
-  wget "$name" -O "${id_name}_url.txt"
+wget "$name" -O "${id_name}_url.txt"
 
 #cut and filter mp4 url
-  cp -- "${id_name}_url.txt" tmp2.txt
-  sed -e 's/&/\n/g' tmp2.txt| grep 'url_encoded_fmt_stream_map'> tmp3.txt
-  sed -i -e 's/%2C/,/g' tmp3.txt 
-  sed -i -e 's/,/\n/g' tmp3.txt
 
-#print out total video format name and quality
-  perl -ne 'print "$2,$1\n" if /quality%3D(.*?)%.*video%252F(.*?)(%|\n)/' tmp3.txt > video_type_option.txt
+cp -- "${id_name}_url.txt" yt_tmp2.txt
 
-#if video format name is prior to quality
-  perl -ne 'print "$1,$2\n" if /video%252F(.*?)%.*quality%3D(.*?)(%|\n)/' tmp3.txt >> video_type_option.txt
-  sed -i -e 's/x-flv/flv/g' video_type_option.txt
+#url_decode
 
-  select_option
-  
-#set file extension name variable and video quality variable
-  extension_name=`head -n "$n" video_type_option.txt | tail -n 1 | cut -d "," -f 1`
-  quality_name=`head -n "$n" video_type_option.txt | tail -n 1 | cut -d "," -f 2`
+sed -e 's/&/\n/g' -e 's/%2C/,/g' -e 's/,/\n/g' -e 's/%25/%/g' -e 's/%25/%/g' -e 's/%3A/:/g' -e 's/%2F/\//g' -e 's/%3F/\?/g' -e 's/%3D/=/g' -e 's/%26/\&/g' -e 's/&/\n/g' -e 's/url%3D//g' -e 's/\n//g' -e 's/sig%3D/\&signature%3D/g' -e 's/%2C/,/g' -e 's/%22/"/g' -e 's/%3B/;/g' -e 's/%7D/}/g' -e 's/%7B/{/g' -e 's/http/\nhttp/g' -e 's/%5C/\\/g' yt_tmp2.txt | perl -pe 's/\\u0026/\&/g'  > yt_tmp3.txt
 
-  sed -i -e 's/%26/\&/g' tmp4.txt
-  sed -i -e 's/&/\n/g' tmp4.txt
-  grep 'http' tmp4.txt > tmp5.txt
-  grep 'sig%3D' tmp4.txt >> tmp5.txt
-  perl -pe 's/\n//g' tmp5.txt | sed -e 's/sig%3D/\&signature%3D/g' > tmp6.txt
-  sed -i -e 's/url%3D//g' tmp6.txt
-  
-#url decoding
-  cat tmp6.txt | sed -e 's/%25/%/g' -e 's/%25/%/g' -e 's/%3A/:/g' -e 's/%2F/\//g' -e 's/%3F/\?/g' -e 's/%3D/=/g' -e 's/%26/\&/g' > tmp7.txt
+#get video title name
 
-  wget -i tmp7.txt -O "${id_name}_${quality_name}.${extension_name}"
-  
-  rm -f tmp[2-6].txt
+echo -n "echo -e '" > title_name.sh
+title_name=`perl -ne 'print "$1" if/title":"(.*?)"/' yt_tmp3.txt`
+echo ${title_name} | perl -pe 's/\%/\\x/g' | tr -d '\n' >> title_name.sh
 
+echo -n "'" >> title_name.sh
+filename=`. title_name.sh`
+
+#get video
+
+grep qualityLabel yt_tmp3.txt | grep audioQuality > yt_tmp4.txt
+
+perl -ne 'print "$1,$2\n" if /mimeType":"(.*?);.*quality":"(.*?)"/' yt_tmp4.txt > video_type_option.txt
+
+video_select
+
+extension_name=`perl -ne 'print "$1" if /mimeType":"video\/(.*?);/' yt_tmp5.txt`
+
+quality_name=`perl -ne 'print "$1" if /"quality":"(.*?)"/;' yt_tmp5.txt`
+
+perl -ne 'print "$1\n" if /^(http.*?)"/' yt_tmp5.txt > yt_url.txt
+
+wget -O "${filename}_${id_name}_${quality_name}.${extension_name}" -i yt_url.txt
+
+#delete tmp file
+rm -f yt_tmp[2-5].txt
+rm -f yt_url.txt
