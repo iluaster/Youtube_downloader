@@ -7,4 +7,4 @@ Usage:
 > ./get_video.sh [Youtube_URL]
 
 e.g.,
-> ./get_video.sh https://www.youtube.com/watch?v=xxxxxxxxxx
+> ./get_video.sh 'https://www.youtube.com/watch?v=Uf4AdGuj5F4'
