@@ -65,7 +65,10 @@ cp -- "${id_name}_url.txt" yt_tmp2.txt
 
 #url_decode
 
-sed -e 's/&/\n/g' -e 's/%2C/,/g' -e 's/,/\n/g' -e 's/%25/%/g' -e 's/%25/%/g' -e 's/%3A/:/g' -e 's/%2F/\//g' -e 's/%3F/\?/g' -e 's/%3D/=/g' -e 's/%26/\&/g' -e 's/&/\n/g' -e 's/url%3D//g' -e 's/\n//g' -e 's/sig%3D/\&signature%3D/g' -e 's/%2C/,/g' -e 's/%22/"/g' -e 's/%3B/;/g' -e 's/%7D/}/g' -e 's/%7B/{/g' -e 's/http/\nhttp/g' -e 's/%5C/\\/g' yt_tmp2.txt | perl -pe 's/\\u0026/\&/g'  > yt_tmp3.txt
+sed -e 's/&/\n/g' -e 's/%2C/,/g' -e 's/,/\n/g' -e 's/%25/%/g' -e 's/%25/%/g' -e 's/%3A/:/g' -e 's/%2F/\//g' \
+-e 's/%3F/\?/g' -e 's/%3D/=/g' -e 's/%26/\&/g' -e 's/&/\n/g' -e 's/url%3D//g' -e 's/\n//g' -e 's/sig%3D/\&signature%3D/g' \
+-e 's/%2C/,/g' -e 's/%22/"/g' -e 's/%3B/;/g' -e 's/%7D/}/g' -e 's/%7B/{/g' -e 's/http/\nhttp/g' -e 's/%5C/\\/g' yt_tmp2.txt | \
+perl -pe 's/\\u0026/\&/g'  > yt_tmp3.txt
 
 #get video title name
 
